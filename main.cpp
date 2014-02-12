@@ -138,6 +138,14 @@ int main(int argc, char** argv)
 
 	glUseProgram(program);
 
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	GLint pos_attrib = glGetAttribLocation(program, "position");
+	glVertexAttribPointer(pos_attrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(pos_attrib);
+
 	// main loop
 	SDL_Event event;
 	while (true)
@@ -150,6 +158,7 @@ int main(int argc, char** argv)
 
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		SDL_GL_SwapWindow(window);
 	}
