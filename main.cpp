@@ -76,6 +76,11 @@ int main(int argc, char** argv)
 		SDL_WINDOW_OPENGL
 	);
 
+	if (SDL_SetRelativeMouseMode(SDL_TRUE) != 0)
+	{
+		cerr << "SDL_SetRelativeMoudeMode failed: " << SDL_GetError() << endl;
+	}
+
 	if (window == nullptr)
 	{
 		cerr << "SDL_CreateWindow failed: " << SDL_GetError() << endl;
@@ -101,9 +106,9 @@ int main(int argc, char** argv)
 	}
 
 	float vertices[] = {
-		 0.0f,  0.5f,
-		 0.5f, -0.5f,
-		-0.5f, -0.5f
+		 0.0f,  0.5f, 1.f, 0.f, 0.f,
+		 0.5f, -0.5f, 0.f, 1.f, 0.f,
+		-0.5f, -0.5f, 0.f, 0.f, 1.f
 	};
 
 	// create buffer
@@ -152,18 +157,31 @@ int main(int argc, char** argv)
 	glBindVertexArray(vao);
 
 	GLint pos_attrib = glGetAttribLocation(program, "position");
-	glVertexAttribPointer(pos_attrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(pos_attrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
 	glEnableVertexAttribArray(pos_attrib);
+
+	GLint col_attrib = glGetAttribLocation(program, "color");
+	glVertexAttribPointer(col_attrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(col_attrib);
 
 	GLint model_u = glGetUniformLocation(program, "model");
 	GLint view_u = glGetUniformLocation(program, "view");
 	GLint proj_u = glGetUniformLocation(program, "proj");
 
-	glm::mat4 view = glm::lookAt(
-		glm::vec3(1.2f, 1.2f, 1.2f), // camera pos
-		glm::vec3(0.f, 0.f, 0.f), // point to look at
-		glm::vec3(0.f, 0.f, 1.f) // up
-	);
+	glm::mat4 model;
+	model = glm::rotate(model, 0.f, glm::vec3(0.f, 0.f, 1.f));
+
+	glUniformMatrix4fv(model_u, 1, GL_FALSE, glm::value_ptr(model));
+
+	glm::vec3 camera_pos(0.f, 0.f, 1.2f);
+	float heading = 0.f;
+	float pitch = 0.f;
+
+	glm::mat4 view;
+	view = glm::translate(view, -camera_pos);
+	view = glm::rotate(view, -pitch, glm::vec3(1.f, 0.f, 0.f));
+	view = glm::rotate(view, -heading, glm::vec3(0.f, 1.f, 0.f));
+
 	glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 
 	glm::mat4 proj = glm::perspective(45.f, (float)width / (float)height, 1.f, 10.f);
@@ -173,22 +191,32 @@ int main(int argc, char** argv)
 
 	// main loop
 	SDL_Event event;
-	while (true)
+	bool running = true;
+	while (running)
 	{
-		if (SDL_PollEvent(&event))
+		while (SDL_PollEvent(&event))
 		{
 			if (event.type == SDL_QUIT)
-				break;
+				running = false;
+			else if (event.type == SDL_MOUSEMOTION)
+			{
+				heading += event.motion.xrel / -90.f;
+				pitch += event.motion.yrel / -90.f;
+
+				pitch = std::max(-(float)M_PI_2, std::min(pitch, (float)M_PI_2));
+
+				glm::mat4 view;
+				view = glm::translate(view, -camera_pos);
+				view = glm::rotate(view, -pitch, glm::vec3(1.f, 0.f, 0.f));
+				view = glm::rotate(view, -heading, glm::vec3(0.f, 1.f, 0.f));
+
+				glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
+			}
 		}
 
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		glm::mat4 model;
-		model = glm::rotate(model, (float)(SDL_GetTicks() * M_PI / 1000.f), glm::vec3(0.f, 0.f, 1.f));
-
-		glUniformMatrix4fv(model_u, 1, GL_FALSE, glm::value_ptr(model));
 
 		SDL_GL_SwapWindow(window);
 	}
