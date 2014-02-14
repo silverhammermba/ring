@@ -53,6 +53,21 @@ void load_shader(GLuint shader, const std::string& filename)
 		throw std::runtime_error("Failed to compile shader: " + filename);
 }
 
+glm::mat4 cam_mat(float heading, float pitch, const glm::vec3& pos)
+{
+	// TODO move to gfx card
+	float ct = cosf(heading);
+	float st = sinf(heading);
+	float cp = cosf(pitch);
+	float sp = sinf(pitch);
+	glm::mat4 view;
+	view[0] = glm::vec4(ct, -sp * st, cp * st, 0);
+	view[1] = glm::vec4(0, cp, sp, 0);
+	view[2] = glm::vec4(-st, -sp * ct, cp * ct, 0);
+	view[3] = glm::vec4(-ct * pos.x + st * pos.z, sp * st * pos.x - cp * pos.y + sp * ct * pos.z, -cp * st * pos.x - sp * pos.y - cp * ct * pos.z, 1);
+	return view;
+}
+
 int main(int argc, char** argv)
 {
 	// start SDL
@@ -173,14 +188,11 @@ int main(int argc, char** argv)
 
 	glUniformMatrix4fv(model_u, 1, GL_FALSE, glm::value_ptr(model));
 
-	glm::vec3 camera_pos(0.f, 0.f, 1.2f);
+	glm::vec3 camera_pos(0.f, 0.f, 5.f);
 	float heading = 0.f;
 	float pitch = 0.f;
 
-	glm::mat4 view;
-	view = glm::translate(view, -camera_pos);
-	view = glm::rotate(view, -pitch, glm::vec3(1.f, 0.f, 0.f));
-	view = glm::rotate(view, -heading, glm::vec3(0.f, 1.f, 0.f));
+	glm::mat4 view = cam_mat(heading, pitch, camera_pos);
 
 	glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 
@@ -201,14 +213,11 @@ int main(int argc, char** argv)
 			else if (event.type == SDL_MOUSEMOTION)
 			{
 				heading += event.motion.xrel / -90.f;
-				pitch += event.motion.yrel / -90.f;
+				pitch += event.motion.yrel / 90.f;
 
 				pitch = std::max(-(float)M_PI_2, std::min(pitch, (float)M_PI_2));
 
-				glm::mat4 view;
-				view = glm::translate(view, -camera_pos);
-				view = glm::rotate(view, -pitch, glm::vec3(1.f, 0.f, 0.f));
-				view = glm::rotate(view, -heading, glm::vec3(0.f, 1.f, 0.f));
+				glm::mat4 view = cam_mat(heading, pitch, camera_pos);
 
 				glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 			}
