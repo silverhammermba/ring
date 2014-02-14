@@ -63,13 +63,16 @@ int main(int argc, char** argv)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
+	unsigned int width = 640;
+	unsigned int height = 480;
+
 	// create window
 	SDL_Window* window = SDL_CreateWindow(
 		"Hide",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
-		640,
-		480,
+		width,
+		height,
 		SDL_WINDOW_OPENGL
 	);
 
@@ -152,7 +155,19 @@ int main(int argc, char** argv)
 	glVertexAttribPointer(pos_attrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(pos_attrib);
 
-	GLint trans_u = glGetUniformLocation(program, "trans");
+	GLint model_u = glGetUniformLocation(program, "model");
+	GLint view_u = glGetUniformLocation(program, "view");
+	GLint proj_u = glGetUniformLocation(program, "proj");
+
+	glm::mat4 view = glm::lookAt(
+		glm::vec3(1.2f, 1.2f, 1.2f), // camera pos
+		glm::vec3(0.f, 0.f, 0.f), // point to look at
+		glm::vec3(0.f, 0.f, 1.f) // up
+	);
+	glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
+
+	glm::mat4 proj = glm::perspective(45.f, (float)width / (float)height, 1.f, 10.f);
+	glUniformMatrix4fv(proj_u, 1, GL_FALSE, glm::value_ptr(proj));
 
 	unsigned int last_time = SDL_GetTicks();
 
@@ -170,10 +185,10 @@ int main(int argc, char** argv)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		glm::mat4 trans;
-		trans = glm::rotate(trans, (float)(SDL_GetTicks() * M_PI / 1000.f), glm::vec3(0.f, 0.f, 1.f));
+		glm::mat4 model;
+		model = glm::rotate(model, (float)(SDL_GetTicks() * M_PI / 1000.f), glm::vec3(0.f, 0.f, 1.f));
 
-		glUniformMatrix4fv(trans_u, 1, GL_FALSE, glm::value_ptr(trans));
+		glUniformMatrix4fv(model_u, 1, GL_FALSE, glm::value_ptr(model));
 
 		SDL_GL_SwapWindow(window);
 	}
