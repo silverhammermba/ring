@@ -1,3 +1,4 @@
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -6,6 +7,10 @@
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include <glm/glm.hpp>
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using std::cerr;
 using std::endl;
@@ -115,6 +120,7 @@ int main(int argc, char** argv)
 	GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 	load_shader(fragment_shader, "fragment.glsl");
 
+	// create program
 	GLuint program = glCreateProgram();
 	glAttachShader(program, vertex_shader);
 	glAttachShader(program, fragment_shader);
@@ -146,6 +152,10 @@ int main(int argc, char** argv)
 	glVertexAttribPointer(pos_attrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(pos_attrib);
 
+	GLint trans_u = glGetUniformLocation(program, "trans");
+
+	unsigned int last_time = SDL_GetTicks();
+
 	// main loop
 	SDL_Event event;
 	while (true)
@@ -159,6 +169,11 @@ int main(int argc, char** argv)
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glm::mat4 trans;
+		trans = glm::rotate(trans, (float)(SDL_GetTicks() * M_PI / 1000.f), glm::vec3(0.f, 0.f, 1.f));
+
+		glUniformMatrix4fv(trans_u, 1, GL_FALSE, glm::value_ptr(trans));
 
 		SDL_GL_SwapWindow(window);
 	}
