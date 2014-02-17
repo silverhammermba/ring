@@ -245,12 +245,20 @@ int main(int argc, char** argv)
 	glUniformMatrix4fv(proj_u, 1, GL_FALSE, glm::value_ptr(proj));
 
 	unsigned int last_time = SDL_GetTicks();
+	unsigned int now;
+	unsigned int frame_time;
+
+	const Uint8* state = SDL_GetKeyboardState(nullptr);
 
 	// main loop
 	SDL_Event event;
 	bool running = true;
 	while (running)
 	{
+		now = SDL_GetTicks();
+		frame_time = now - last_time;
+		last_time = now;
+
 		while (SDL_PollEvent(&event))
 		{
 			if (event.type == SDL_QUIT)
@@ -266,6 +274,40 @@ int main(int argc, char** argv)
 
 				glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 			}
+		}
+
+		glm::vec3 move;
+		bool moved = false;
+		if (state[SDL_SCANCODE_W])
+		{
+			move.z -= 1.f;
+			moved =  true;
+		}
+		if (state[SDL_SCANCODE_S])
+		{
+			move.z += 1.f;
+			moved =  true;
+		}
+		if (state[SDL_SCANCODE_A])
+		{
+			move.x -= 1.f;
+			moved =  true;
+		}
+		if (state[SDL_SCANCODE_D])
+		{
+			move.x += 1.f;
+			moved =  true;
+		}
+		if (moved)
+		{
+			move = glm::normalize(move) * (float)frame_time / 500.f;
+
+			camera_pos.x += cosf(heading) * move.x + sinf(heading) * move.z;
+			camera_pos.z += cosf(heading) * move.z - sinf(heading) * move.x;
+
+			glm::mat4 view = cam_mat(heading, pitch, camera_pos);
+
+			glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 		}
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
