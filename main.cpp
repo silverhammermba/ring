@@ -15,6 +15,7 @@
 using std::cerr;
 using std::endl;
 
+// read entire contents of file into string
 std::string read_file(const std::string& filename)
 {
 	std::string content;
@@ -32,6 +33,7 @@ std::string read_file(const std::string& filename)
 	return content;
 }
 
+// load file contents, compile shader, report errors
 void load_shader(GLuint shader, const std::string& filename)
 {
 	std::string source = read_file(filename);
@@ -53,6 +55,7 @@ void load_shader(GLuint shader, const std::string& filename)
 		throw std::runtime_error("Failed to compile shader: " + filename);
 }
 
+// construct view matrix a la FPS positioning
 glm::mat4 cam_mat(float heading, float pitch, const glm::vec3& pos)
 {
 	// TODO move to gfx card
@@ -78,6 +81,7 @@ int main(int argc, char** argv)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
+	// window dimensions
 	unsigned int width = 1920;
 	unsigned int height = 1080;
 
@@ -91,15 +95,16 @@ int main(int argc, char** argv)
 		SDL_WINDOW_OPENGL
 	);
 
-	if (SDL_SetRelativeMouseMode(SDL_TRUE) != 0)
-	{
-		cerr << "SDL_SetRelativeMoudeMode failed: " << SDL_GetError() << endl;
-	}
-
 	if (window == nullptr)
 	{
 		cerr << "SDL_CreateWindow failed: " << SDL_GetError() << endl;
 		return 1;
+	}
+
+	// relative mouse motion for FPS controls
+	if (SDL_SetRelativeMouseMode(SDL_TRUE) != 0)
+	{
+		cerr << "SDL_SetRelativeMouseMode failed: " << SDL_GetError() << endl;
 	}
 
 	// create context
@@ -120,6 +125,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// rainbow room!
 	float vertices[] = {
 		// front
 		-5.f,  0.f, -5.f, 1.f, 0.f, 0.f,
@@ -171,7 +177,7 @@ int main(int argc, char** argv)
 		-5.f,  0.f,  5.f, 1.f, 1.f, 1.f,
 	};
 
-	// create buffer
+	// create vertex buffer
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 
@@ -212,27 +218,33 @@ int main(int argc, char** argv)
 
 	glUseProgram(program);
 
+	// create vertex array and set active
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
+	// describe position attributes
 	GLint pos_attrib = glGetAttribLocation(program, "position");
 	glVertexAttribPointer(pos_attrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
 	glEnableVertexAttribArray(pos_attrib);
 
+	// describe color attributes
 	GLint col_attrib = glGetAttribLocation(program, "color");
 	glVertexAttribPointer(col_attrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(col_attrib);
 
+	// uniforms for transformations
 	GLint model_u = glGetUniformLocation(program, "model");
 	GLint view_u = glGetUniformLocation(program, "view");
 	GLint proj_u = glGetUniformLocation(program, "proj");
 
+	// model transform (currently does nothing)
 	glm::mat4 model;
 	model = glm::rotate(model, 0.f, glm::vec3(0.f, 0.f, 1.f));
 
 	glUniformMatrix4fv(model_u, 1, GL_FALSE, glm::value_ptr(model));
 
+	// view transform stuff
 	glm::vec3 camera_pos(0.f, 3.f, 0.f);
 	float heading = 0.f;
 	float pitch = 0.f;
@@ -241,6 +253,7 @@ int main(int argc, char** argv)
 
 	glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 
+	// projection matrix
 	glm::mat4 proj = glm::perspective(90.f, (float)width / (float)height, 1.f, 1024.f);
 	glUniformMatrix4fv(proj_u, 1, GL_FALSE, glm::value_ptr(proj));
 
@@ -255,28 +268,32 @@ int main(int argc, char** argv)
 	bool running = true;
 	while (running)
 	{
+		// update timers
 		now = SDL_GetTicks();
 		frame_time = now - last_time;
 		last_time = now;
 
+		bool update_view = false;
+		glm::vec3 move;
+
+		// event handling
 		while (SDL_PollEvent(&event))
 		{
 			if (event.type == SDL_QUIT)
 				running = false;
 			else if (event.type == SDL_MOUSEMOTION)
 			{
+				// mouse look
+				update_view = true;
+
 				heading += event.motion.xrel / -90.f;
 				pitch += event.motion.yrel / 90.f;
 
 				pitch = std::max(-(float)M_PI_2, std::min(pitch, (float)M_PI_2));
-
-				glm::mat4 view = cam_mat(heading, pitch, camera_pos);
-
-				glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 			}
 		}
 
-		glm::vec3 move;
+		// keyboard movement
 		bool moved = false;
 		if (state[SDL_SCANCODE_W])
 		{
@@ -298,18 +315,25 @@ int main(int argc, char** argv)
 			move.x += 1.f;
 			moved =  true;
 		}
+
 		if (moved)
 		{
+			update_view = true;
+
 			move = glm::normalize(move) * (float)frame_time / 500.f;
 
 			camera_pos.x += cosf(heading) * move.x + sinf(heading) * move.z;
 			camera_pos.z += cosf(heading) * move.z - sinf(heading) * move.x;
+		}
 
+		// update view matrix if anything changed
+		if (update_view)
+		{
 			glm::mat4 view = cam_mat(heading, pitch, camera_pos);
-
 			glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 		}
 
+		// draw
 		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
