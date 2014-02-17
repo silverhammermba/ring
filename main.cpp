@@ -78,8 +78,8 @@ int main(int argc, char** argv)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-	unsigned int width = 640;
-	unsigned int height = 480;
+	unsigned int width = 1920;
+	unsigned int height = 1080;
 
 	// create window
 	SDL_Window* window = SDL_CreateWindow(
@@ -121,9 +121,54 @@ int main(int argc, char** argv)
 	}
 
 	float vertices[] = {
-		 0.0f,  0.5f, 1.f, 0.f, 0.f,
-		 0.5f, -0.5f, 0.f, 1.f, 0.f,
-		-0.5f, -0.5f, 0.f, 0.f, 1.f
+		// front
+		-5.f,  0.f, -5.f, 1.f, 0.f, 0.f,
+		-5.f, 10.f, -5.f, 1.f, 0.f, 0.f,
+		 5.f, 10.f, -5.f, 1.f, 0.f, 0.f,
+
+		-5.f,  0.f, -5.f, 1.f, 0.f, 0.f,
+		 5.f, 10.f, -5.f, 1.f, 0.f, 0.f,
+		 5.f,  0.f, -5.f, 1.f, 0.f, 0.f,
+		// left
+		-5.f,  0.f,  5.f, 1.f, 0.f, 1.f,
+		-5.f, 10.f,  5.f, 1.f, 0.f, 1.f,
+		-5.f, 10.f, -5.f, 1.f, 0.f, 1.f,
+
+		-5.f,  0.f,  5.f, 1.f, 0.f, 1.f,
+		-5.f, 10.f, -5.f, 1.f, 0.f, 1.f,
+		-5.f,  0.f, -5.f, 1.f, 0.f, 1.f,
+		// right
+		 5.f,  0.f, -5.f, 0.f, 1.f, 0.f,
+		 5.f, 10.f, -5.f, 0.f, 1.f, 0.f,
+		 5.f, 10.f,  5.f, 0.f, 1.f, 0.f,
+
+		 5.f,  0.f, -5.f, 0.f, 1.f, 0.f,
+		 5.f, 10.f,  5.f, 0.f, 1.f, 0.f,
+		 5.f,  0.f,  5.f, 0.f, 1.f, 0.f,
+		// back
+		 5.f,  0.f,  5.f, 0.f, 0.f, 1.f,
+		 5.f, 10.f,  5.f, 0.f, 0.f, 1.f,
+		-5.f, 10.f,  5.f, 0.f, 0.f, 1.f,
+
+		 5.f,  0.f,  5.f, 0.f, 0.f, 1.f,
+		-5.f, 10.f,  5.f, 0.f, 0.f, 1.f,
+		-5.f,  0.f,  5.f, 0.f, 0.f, 1.f,
+		// top
+		 5.f, 10.f,  5.f, 0.f, 0.f, 0.f,
+		 5.f, 10.f, -5.f, 0.f, 0.f, 0.f,
+		-5.f, 10.f, -5.f, 0.f, 0.f, 0.f,
+
+		 5.f, 10.f,  5.f, 0.f, 0.f, 0.f,
+		-5.f, 10.f, -5.f, 0.f, 0.f, 0.f,
+		-5.f, 10.f,  5.f, 0.f, 0.f, 0.f,
+		// bottom
+		-5.f,  0.f, -5.f, 1.f, 1.f, 1.f,
+		 5.f,  0.f, -5.f, 1.f, 1.f, 1.f,
+		 5.f,  0.f,  5.f, 1.f, 1.f, 1.f,
+
+		-5.f,  0.f, -5.f, 1.f, 1.f, 1.f,
+		 5.f,  0.f,  5.f, 1.f, 1.f, 1.f,
+		-5.f,  0.f,  5.f, 1.f, 1.f, 1.f,
 	};
 
 	// create buffer
@@ -172,11 +217,11 @@ int main(int argc, char** argv)
 	glBindVertexArray(vao);
 
 	GLint pos_attrib = glGetAttribLocation(program, "position");
-	glVertexAttribPointer(pos_attrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+	glVertexAttribPointer(pos_attrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
 	glEnableVertexAttribArray(pos_attrib);
 
 	GLint col_attrib = glGetAttribLocation(program, "color");
-	glVertexAttribPointer(col_attrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+	glVertexAttribPointer(col_attrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(col_attrib);
 
 	GLint model_u = glGetUniformLocation(program, "model");
@@ -188,7 +233,7 @@ int main(int argc, char** argv)
 
 	glUniformMatrix4fv(model_u, 1, GL_FALSE, glm::value_ptr(model));
 
-	glm::vec3 camera_pos(0.f, 0.f, 5.f);
+	glm::vec3 camera_pos(0.f, 3.f, 0.f);
 	float heading = 0.f;
 	float pitch = 0.f;
 
@@ -196,7 +241,7 @@ int main(int argc, char** argv)
 
 	glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 
-	glm::mat4 proj = glm::perspective(45.f, (float)width / (float)height, 1.f, 10.f);
+	glm::mat4 proj = glm::perspective(90.f, (float)width / (float)height, 1.f, 1024.f);
 	glUniformMatrix4fv(proj_u, 1, GL_FALSE, glm::value_ptr(proj));
 
 	unsigned int last_time = SDL_GetTicks();
@@ -223,9 +268,9 @@ int main(int argc, char** argv)
 			}
 		}
 
-		glClearColor(0, 0, 0, 1);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		SDL_GL_SwapWindow(window);
 	}
