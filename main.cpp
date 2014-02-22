@@ -127,54 +127,55 @@ int main(int argc, char** argv)
 
 	// rainbow room!
 	float vertices[] = {
+	//  position          color          texture
 		// front
-		-5.f,  0.f, -5.f, 1.f, 0.f, 0.f,
-		-5.f, 10.f, -5.f, 1.f, 0.f, 0.f,
-		 5.f, 10.f, -5.f, 1.f, 0.f, 0.f,
+		-5.f,  0.f, -5.f, 1.f, 0.f, 0.f, 0.0, 0.0,
+		-5.f, 10.f, -5.f, 1.f, 0.f, 0.f, 0.0, 1.0,
+		 5.f, 10.f, -5.f, 1.f, 0.f, 0.f, 1.0, 1.0,
 
-		-5.f,  0.f, -5.f, 1.f, 0.f, 0.f,
-		 5.f, 10.f, -5.f, 1.f, 0.f, 0.f,
-		 5.f,  0.f, -5.f, 1.f, 0.f, 0.f,
+		-5.f,  0.f, -5.f, 1.f, 0.f, 0.f, 0.0, 0.0,
+		 5.f, 10.f, -5.f, 1.f, 0.f, 0.f, 1.0, 1.0,
+		 5.f,  0.f, -5.f, 1.f, 0.f, 0.f, 1.0, 0.0,
 		// left
-		-5.f,  0.f,  5.f, 1.f, 0.f, 1.f,
-		-5.f, 10.f,  5.f, 1.f, 0.f, 1.f,
-		-5.f, 10.f, -5.f, 1.f, 0.f, 1.f,
+		-5.f,  0.f,  5.f, 1.f, 0.f, 1.f, 0.0, 0.0,
+		-5.f, 10.f,  5.f, 1.f, 0.f, 1.f, 0.0, 1.0,
+		-5.f, 10.f, -5.f, 1.f, 0.f, 1.f, 1.0, 1.0,
 
-		-5.f,  0.f,  5.f, 1.f, 0.f, 1.f,
-		-5.f, 10.f, -5.f, 1.f, 0.f, 1.f,
-		-5.f,  0.f, -5.f, 1.f, 0.f, 1.f,
+		-5.f,  0.f,  5.f, 1.f, 0.f, 1.f, 0.0, 0.0,
+		-5.f, 10.f, -5.f, 1.f, 0.f, 1.f, 1.0, 1.0,
+		-5.f,  0.f, -5.f, 1.f, 0.f, 1.f, 1.0, 0.0,
 		// right
-		 5.f,  0.f, -5.f, 0.f, 1.f, 0.f,
-		 5.f, 10.f, -5.f, 0.f, 1.f, 0.f,
-		 5.f, 10.f,  5.f, 0.f, 1.f, 0.f,
+		 5.f,  0.f, -5.f, 0.f, 1.f, 0.f, 0.0, 0.0,
+		 5.f, 10.f, -5.f, 0.f, 1.f, 0.f, 0.0, 1.0,
+		 5.f, 10.f,  5.f, 0.f, 1.f, 0.f, 1.0, 1.0,
 
-		 5.f,  0.f, -5.f, 0.f, 1.f, 0.f,
-		 5.f, 10.f,  5.f, 0.f, 1.f, 0.f,
-		 5.f,  0.f,  5.f, 0.f, 1.f, 0.f,
+		 5.f,  0.f, -5.f, 0.f, 1.f, 0.f, 0.0, 0.0,
+		 5.f, 10.f,  5.f, 0.f, 1.f, 0.f, 1.0, 1.0,
+		 5.f,  0.f,  5.f, 0.f, 1.f, 0.f, 1.0, 0.0,
 		// back
-		 5.f,  0.f,  5.f, 0.f, 0.f, 1.f,
-		 5.f, 10.f,  5.f, 0.f, 0.f, 1.f,
-		-5.f, 10.f,  5.f, 0.f, 0.f, 1.f,
+		 5.f,  0.f,  5.f, 0.f, 0.f, 1.f, 0.0, 0.0,
+		 5.f, 10.f,  5.f, 0.f, 0.f, 1.f, 0.0, 1.0,
+		-5.f, 10.f,  5.f, 0.f, 0.f, 1.f, 1.0, 1.0,
 
-		 5.f,  0.f,  5.f, 0.f, 0.f, 1.f,
-		-5.f, 10.f,  5.f, 0.f, 0.f, 1.f,
-		-5.f,  0.f,  5.f, 0.f, 0.f, 1.f,
+		 5.f,  0.f,  5.f, 0.f, 0.f, 1.f, 0.0, 0.0,
+		-5.f, 10.f,  5.f, 0.f, 0.f, 1.f, 1.0, 1.0,
+		-5.f,  0.f,  5.f, 0.f, 0.f, 1.f, 1.0, 0.0,
 		// top
-		 5.f, 10.f,  5.f, 0.f, 0.f, 0.f,
-		 5.f, 10.f, -5.f, 0.f, 0.f, 0.f,
-		-5.f, 10.f, -5.f, 0.f, 0.f, 0.f,
+		 5.f, 10.f,  5.f, 0.f, 0.f, 0.f, 1.0, 1.0,
+		 5.f, 10.f, -5.f, 0.f, 0.f, 0.f, 1.0, 0.0,
+		-5.f, 10.f, -5.f, 0.f, 0.f, 0.f, 0.0, 0.0,
 
-		 5.f, 10.f,  5.f, 0.f, 0.f, 0.f,
-		-5.f, 10.f, -5.f, 0.f, 0.f, 0.f,
-		-5.f, 10.f,  5.f, 0.f, 0.f, 0.f,
+		 5.f, 10.f,  5.f, 0.f, 0.f, 0.f, 1.0, 1.0,
+		-5.f, 10.f, -5.f, 0.f, 0.f, 0.f, 0.0, 0.0,
+		-5.f, 10.f,  5.f, 0.f, 0.f, 0.f, 0.0, 1.0,
 		// bottom
-		-5.f,  0.f, -5.f, 1.f, 1.f, 1.f,
-		 5.f,  0.f, -5.f, 1.f, 1.f, 1.f,
-		 5.f,  0.f,  5.f, 1.f, 1.f, 1.f,
+		-5.f,  0.f, -5.f, 1.f, 1.f, 1.f, 0.0, 1.0,
+		 5.f,  0.f, -5.f, 1.f, 1.f, 1.f, 1.0, 1.0,
+		 5.f,  0.f,  5.f, 1.f, 1.f, 1.f, 1.0, 0.0,
 
-		-5.f,  0.f, -5.f, 1.f, 1.f, 1.f,
-		 5.f,  0.f,  5.f, 1.f, 1.f, 1.f,
-		-5.f,  0.f,  5.f, 1.f, 1.f, 1.f,
+		-5.f,  0.f, -5.f, 1.f, 1.f, 1.f, 0.0, 1.0,
+		 5.f,  0.f,  5.f, 1.f, 1.f, 1.f, 1.0, 0.0,
+		-5.f,  0.f,  5.f, 1.f, 1.f, 1.f, 0.0, 0.0,
 	};
 
 	// create vertex buffer
@@ -225,13 +226,18 @@ int main(int argc, char** argv)
 
 	// describe position attributes
 	GLint pos_attrib = glGetAttribLocation(program, "position");
-	glVertexAttribPointer(pos_attrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+	glVertexAttribPointer(pos_attrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
 	glEnableVertexAttribArray(pos_attrib);
 
 	// describe color attributes
 	GLint col_attrib = glGetAttribLocation(program, "color");
-	glVertexAttribPointer(col_attrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(col_attrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(col_attrib);
+
+	// describe texture attributes
+	GLint tex_attrib = glGetAttribLocation(program, "texcoord");
+	glVertexAttribPointer(tex_attrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(tex_attrib);
 
 	// uniforms for transformations
 	GLint model_u = glGetUniformLocation(program, "model");
@@ -258,6 +264,10 @@ int main(int argc, char** argv)
 	glUniformMatrix4fv(proj_u, 1, GL_FALSE, glm::value_ptr(proj));
 
 	glEnable(GL_DEPTH_TEST);
+
+	// transparency
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	unsigned int last_time = SDL_GetTicks();
 	unsigned int now;
@@ -322,7 +332,7 @@ int main(int argc, char** argv)
 		{
 			update_view = true;
 
-			move = glm::normalize(move) * (float)frame_time / 500.f;
+			move = glm::normalize(move) * (float)frame_time / 200.f;
 
 			camera_pos.x += cosf(heading) * move.x + sinf(heading) * move.z;
 			camera_pos.z += cosf(heading) * move.z - sinf(heading) * move.x;
@@ -336,7 +346,7 @@ int main(int argc, char** argv)
 		}
 
 		// draw
-		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
+		glClearColor(1.0f, 1.0f, 0.0f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
