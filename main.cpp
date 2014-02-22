@@ -254,7 +254,7 @@ int main(int argc, char** argv)
 	glUniformMatrix4fv(view_u, 1, GL_FALSE, glm::value_ptr(view));
 
 	// projection matrix
-	glm::mat4 proj = glm::perspective(90.f, (float)width / (float)height, 1.f, 1024.f);
+	glm::mat4 proj = glm::perspective((float)M_PI_2, (float)width / (float)height, 1.f, 1024.f);
 	glUniformMatrix4fv(proj_u, 1, GL_FALSE, glm::value_ptr(proj));
 
 	glEnable(GL_DEPTH_TEST);
