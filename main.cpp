@@ -161,13 +161,13 @@ int main(int argc, char** argv)
 		-5.f, 10.f,  5.f, 0.f, 0.f, 1.f, 1.0, 1.0,
 		-5.f,  0.f,  5.f, 0.f, 0.f, 1.f, 1.0, 0.0,
 		// top
-		 5.f, 10.f,  5.f, 0.f, 0.f, 0.f, 1.0, 1.0,
-		 5.f, 10.f, -5.f, 0.f, 0.f, 0.f, 1.0, 0.0,
-		-5.f, 10.f, -5.f, 0.f, 0.f, 0.f, 0.0, 0.0,
+		 5.f, 10.f,  5.f, 0.2f, 0.2f, 0.2f, 1.0, 1.0,
+		 5.f, 10.f, -5.f, 0.2f, 0.2f, 0.2f, 1.0, 0.0,
+		-5.f, 10.f, -5.f, 0.2f, 0.2f, 0.2f, 0.0, 0.0,
 
-		 5.f, 10.f,  5.f, 0.f, 0.f, 0.f, 1.0, 1.0,
-		-5.f, 10.f, -5.f, 0.f, 0.f, 0.f, 0.0, 0.0,
-		-5.f, 10.f,  5.f, 0.f, 0.f, 0.f, 0.0, 1.0,
+		 5.f, 10.f,  5.f, 0.2f, 0.2f, 0.2f, 1.0, 1.0,
+		-5.f, 10.f, -5.f, 0.2f, 0.2f, 0.2f, 0.0, 0.0,
+		-5.f, 10.f,  5.f, 0.2f, 0.2f, 0.2f, 0.0, 1.0,
 		// bottom
 		-5.f,  0.f, -5.f, 1.f, 1.f, 1.f, 0.0, 1.0,
 		 5.f,  0.f, -5.f, 1.f, 1.f, 1.f, 1.0, 1.0,
@@ -244,6 +244,8 @@ int main(int argc, char** argv)
 	GLint view_u = glGetUniformLocation(program, "view");
 	GLint proj_u = glGetUniformLocation(program, "proj");
 
+	GLint time_u = glGetUniformLocation(program, "time");
+
 	// model transform (currently does nothing)
 	glm::mat4 model;
 	model = glm::rotate(model, 0.f, glm::vec3(0.f, 0.f, 1.f));
@@ -284,6 +286,8 @@ int main(int argc, char** argv)
 		now = SDL_GetTicks();
 		frame_time = now - last_time;
 		last_time = now;
+
+		glUniform1ui(time_u, now);
 
 		bool update_view = false;
 		glm::vec3 move;
