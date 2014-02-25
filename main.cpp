@@ -1,8 +1,10 @@
+#include <array>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
@@ -14,6 +16,124 @@
 
 using std::cerr;
 using std::endl;
+
+// parse OBJ file (in a limited capacity)
+float* parse_obj(const std::string& filename, unsigned int* size)
+{
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<std::array<unsigned int, 6>> faces;
+
+	std::ifstream in(filename);
+	if (!in)
+		throw std::runtime_error("Failed to read file: " + filename);
+
+	char next;
+
+	while (true)
+	{
+		in >> next;
+
+		if (in.eof())
+			break;
+
+		switch (next)
+		{
+			case 'v':
+			{
+				bool normal = false;
+
+				if (in.peek() == 'n')
+				{
+					normal = true;
+					in.seekg(1, std::ios_base::cur);
+				}
+
+				float x;
+				float y;
+				float z;
+
+				in >> x;
+				in >> y;
+				in >> z;
+
+				glm::vec3 v(x, y, z);
+
+				if (normal)
+					normals.push_back(v);
+				else
+					vertices.push_back(v);
+
+				in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+				break;
+			}
+			case 'f':
+				unsigned int x;
+				unsigned int y;
+				unsigned int z;
+				unsigned int xn;
+				unsigned int yn;
+				unsigned int zn;
+
+				in >> x;
+				in.seekg(2, std::ios_base::cur);
+				in >> xn;
+
+				in >> y;
+				in.seekg(2, std::ios_base::cur);
+				in >> yn;
+
+				in >> z;
+				in.seekg(2, std::ios_base::cur);
+				in >> zn;
+
+				faces.push_back(std::array<unsigned int, 6> {x, y, z, xn, yn, zn});
+
+				in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+				break;
+			default:
+				throw std::runtime_error("Unknown line start: " + next);
+		}
+	}
+
+	// (3 vertices + 3 normals) * 3 floats each
+	*size = faces.size() * 18;
+	float* data = new float[*size];
+
+	unsigned int verts = vertices.size();
+	unsigned int norms = normals.size();
+
+	// for each face
+	for (unsigned int f = 0; f < faces.size(); ++f)
+	{
+		// check bounds
+		for (unsigned int i = 0; i < 3; ++i)
+		{
+			if (faces[f][i] > verts)
+				throw std::runtime_error("Invalid vertex index: " + faces[f][i]);
+			if (faces[f][i + 3] > norms)
+				throw std::runtime_error("Invalid normal index: " + faces[f][i + 3]);
+		}
+
+		// for each vertex
+		for (unsigned int i = 0; i < 3; ++i)
+		{
+			// copy vertices
+			data[f * 18 + i * 6 + 0] = vertices[faces[f][i] - 1].x;
+			data[f * 18 + i * 6 + 1] = vertices[faces[f][i] - 1].y;
+			data[f * 18 + i * 6 + 2] = vertices[faces[f][i] - 1].z;
+
+			// copy normals
+			data[f * 18 + i * 6 + 3] = normals[faces[f][i + 3] - 1].x;
+			data[f * 18 + i * 6 + 4] = normals[faces[f][i + 3] - 1].y;
+			data[f * 18 + i * 6 + 5] = normals[faces[f][i + 3] - 1].z;
+		}
+	}
+
+	return data;
+}
 
 // read entire contents of file into string
 std::string read_file(const std::string& filename)
@@ -73,6 +193,9 @@ glm::mat4 cam_mat(float heading, float pitch, const glm::vec3& pos)
 
 int main(int argc, char** argv)
 {
+	unsigned int num_verts;
+	float* vertices = parse_obj("tri.obj", &num_verts);
+
 	// start SDL
 	SDL_Init(SDL_INIT_VIDEO);
 
@@ -125,59 +248,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// rainbow room!
-	float vertices[] = {
-	//  position          color          texture
-		// front
-		-5.f,  0.f, -5.f, 1.f, 0.f, 0.f, 0.0, 0.0,
-		-5.f, 10.f, -5.f, 1.f, 0.f, 0.f, 0.0, 1.0,
-		 5.f, 10.f, -5.f, 1.f, 0.f, 0.f, 1.0, 1.0,
-
-		-5.f,  0.f, -5.f, 1.f, 0.f, 0.f, 0.0, 0.0,
-		 5.f, 10.f, -5.f, 1.f, 0.f, 0.f, 1.0, 1.0,
-		 5.f,  0.f, -5.f, 1.f, 0.f, 0.f, 1.0, 0.0,
-		// left
-		-5.f,  0.f,  5.f, 1.f, 0.f, 1.f, 0.0, 0.0,
-		-5.f, 10.f,  5.f, 1.f, 0.f, 1.f, 0.0, 1.0,
-		-5.f, 10.f, -5.f, 1.f, 0.f, 1.f, 1.0, 1.0,
-
-		-5.f,  0.f,  5.f, 1.f, 0.f, 1.f, 0.0, 0.0,
-		-5.f, 10.f, -5.f, 1.f, 0.f, 1.f, 1.0, 1.0,
-		-5.f,  0.f, -5.f, 1.f, 0.f, 1.f, 1.0, 0.0,
-		// right
-		 5.f,  0.f, -5.f, 0.f, 1.f, 0.f, 0.0, 0.0,
-		 5.f, 10.f, -5.f, 0.f, 1.f, 0.f, 0.0, 1.0,
-		 5.f, 10.f,  5.f, 0.f, 1.f, 0.f, 1.0, 1.0,
-
-		 5.f,  0.f, -5.f, 0.f, 1.f, 0.f, 0.0, 0.0,
-		 5.f, 10.f,  5.f, 0.f, 1.f, 0.f, 1.0, 1.0,
-		 5.f,  0.f,  5.f, 0.f, 1.f, 0.f, 1.0, 0.0,
-		// back
-		 5.f,  0.f,  5.f, 0.f, 0.f, 1.f, 0.0, 0.0,
-		 5.f, 10.f,  5.f, 0.f, 0.f, 1.f, 0.0, 1.0,
-		-5.f, 10.f,  5.f, 0.f, 0.f, 1.f, 1.0, 1.0,
-
-		 5.f,  0.f,  5.f, 0.f, 0.f, 1.f, 0.0, 0.0,
-		-5.f, 10.f,  5.f, 0.f, 0.f, 1.f, 1.0, 1.0,
-		-5.f,  0.f,  5.f, 0.f, 0.f, 1.f, 1.0, 0.0,
-		// top
-		 5.f, 10.f,  5.f, 0.2f, 0.2f, 0.2f, 1.0, 1.0,
-		 5.f, 10.f, -5.f, 0.2f, 0.2f, 0.2f, 1.0, 0.0,
-		-5.f, 10.f, -5.f, 0.2f, 0.2f, 0.2f, 0.0, 0.0,
-
-		 5.f, 10.f,  5.f, 0.2f, 0.2f, 0.2f, 1.0, 1.0,
-		-5.f, 10.f, -5.f, 0.2f, 0.2f, 0.2f, 0.0, 0.0,
-		-5.f, 10.f,  5.f, 0.2f, 0.2f, 0.2f, 0.0, 1.0,
-		// bottom
-		-5.f,  0.f, -5.f, 1.f, 1.f, 1.f, 0.0, 1.0,
-		 5.f,  0.f, -5.f, 1.f, 1.f, 1.f, 1.0, 1.0,
-		 5.f,  0.f,  5.f, 1.f, 1.f, 1.f, 1.0, 0.0,
-
-		-5.f,  0.f, -5.f, 1.f, 1.f, 1.f, 0.0, 1.0,
-		 5.f,  0.f,  5.f, 1.f, 1.f, 1.f, 1.0, 0.0,
-		-5.f,  0.f,  5.f, 1.f, 1.f, 1.f, 0.0, 0.0,
-	};
-
 	// create vertex buffer
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
@@ -186,7 +256,7 @@ int main(int argc, char** argv)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	// load data
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(float), vertices, GL_STATIC_DRAW);
 
 	// compile shaders
 	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -226,18 +296,13 @@ int main(int argc, char** argv)
 
 	// describe position attributes
 	GLint pos_attrib = glGetAttribLocation(program, "position");
-	glVertexAttribPointer(pos_attrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
+	glVertexAttribPointer(pos_attrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
 	glEnableVertexAttribArray(pos_attrib);
 
-	// describe color attributes
-	GLint col_attrib = glGetAttribLocation(program, "color");
-	glVertexAttribPointer(col_attrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(col_attrib);
-
-	// describe texture attributes
-	GLint tex_attrib = glGetAttribLocation(program, "texcoord");
-	glVertexAttribPointer(tex_attrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(tex_attrib);
+	// describe normal attributes
+	GLint nrm_attrib = glGetAttribLocation(program, "normal");
+	glVertexAttribPointer(nrm_attrib, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(nrm_attrib);
 
 	// uniforms for transformations
 	GLint model_u = glGetUniformLocation(program, "model");
@@ -360,6 +425,8 @@ int main(int argc, char** argv)
 	// clean up
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
+
+	delete[] vertices;
 
 	// stop SDL
 	SDL_Quit();
