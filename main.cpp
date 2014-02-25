@@ -193,8 +193,8 @@ glm::mat4 cam_mat(float heading, float pitch, const glm::vec3& pos)
 
 int main(int argc, char** argv)
 {
-	unsigned int num_verts;
-	float* vertices = parse_obj("tri.obj", &num_verts);
+	unsigned int num_floats;
+	float* vertices = parse_obj("tri.obj", &num_floats);
 
 	// start SDL
 	SDL_Init(SDL_INIT_VIDEO);
@@ -256,7 +256,7 @@ int main(int argc, char** argv)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	// load data
-	glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(float), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, num_floats * sizeof(float), vertices, GL_STATIC_DRAW);
 
 	// compile shaders
 	GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -417,7 +417,7 @@ int main(int argc, char** argv)
 		// draw
 		glClearColor(0.2f, 0.2f, 0.2f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, num_floats / 6);
 
 		SDL_GL_SwapWindow(window);
 	}
