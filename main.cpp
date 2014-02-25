@@ -210,7 +210,7 @@ int main(int argc, char** argv)
 
 	// create window
 	SDL_Window* window = SDL_CreateWindow(
-		"Hide",
+		"Wedding Ring Simulator 2014",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		width,
@@ -331,10 +331,7 @@ int main(int argc, char** argv)
 	glUniformMatrix4fv(proj_u, 1, GL_FALSE, glm::value_ptr(proj));
 
 	glEnable(GL_DEPTH_TEST);
-
-	// transparency
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_CULL_FACE);
 
 	unsigned int last_time = SDL_GetTicks();
 	unsigned int now;
