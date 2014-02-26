@@ -311,6 +311,8 @@ int main(int argc, char** argv)
 
 	GLint time_u = glGetUniformLocation(program, "time");
 
+	GLint light_u = glGetUniformLocation(program, "light");
+
 	// model transform (currently does nothing)
 	glm::mat4 model;
 	model = glm::rotate(model, 0.f, glm::vec3(0.f, 0.f, 1.f));
@@ -337,6 +339,8 @@ int main(int argc, char** argv)
 	unsigned int now;
 	unsigned int frame_time;
 
+	glm::vec3 light_pos;
+
 	const Uint8* state = SDL_GetKeyboardState(nullptr);
 
 	// main loop
@@ -350,6 +354,9 @@ int main(int argc, char** argv)
 		last_time = now;
 
 		glUniform1ui(time_u, now);
+
+		light_pos = glm::vec3(cosf(now / 1000.0) * 4.f + 5.f, 2.f, sinf(now / 1000.0) * 4.f);
+		glUniform3fv(light_u, 1, glm::value_ptr(light_pos));
 
 		bool update_view = false;
 		glm::vec3 move;
