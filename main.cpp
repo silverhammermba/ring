@@ -355,7 +355,7 @@ int main(int argc, char** argv)
 
 		glUniform1ui(time_u, now);
 
-		light_pos = glm::vec3(cosf(now / 1000.0) * 4.f + 5.f, 2.f, sinf(now / 1000.0) * 4.f);
+		light_pos = glm::vec3(cosf(now / 1000.0) * 20.f, 2.f, sinf(now / 1000.0) * 20.f);
 		glUniform3fv(light_u, 1, glm::value_ptr(light_pos));
 
 		bool update_view = false;
