@@ -372,29 +372,24 @@ int main(int argc, char** argv)
 		}
 
 		// keyboard movement
-		bool moved = false;
 		if (state[SDL_SCANCODE_W])
 		{
 			move.z -= 1.f;
-			moved =  true;
 		}
 		if (state[SDL_SCANCODE_S])
 		{
 			move.z += 1.f;
-			moved =  true;
 		}
 		if (state[SDL_SCANCODE_A])
 		{
 			move.x -= 1.f;
-			moved =  true;
 		}
 		if (state[SDL_SCANCODE_D])
 		{
 			move.x += 1.f;
-			moved =  true;
 		}
 
-		if (moved)
+		if (move.x != 0.f || move.z != 0.f)
 		{
 			update_view = true;
 
