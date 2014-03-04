@@ -14,6 +14,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+using std::cout;
 using std::cerr;
 using std::endl;
 
@@ -200,8 +201,8 @@ int main(int argc, char** argv)
 	SDL_Init(SDL_INIT_VIDEO);
 
 	// specify non-deprecated OpenGL context
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 	// window dimensions
@@ -238,6 +239,11 @@ int main(int argc, char** argv)
 		cerr << "SDL_GL_CreateContext failed: " << SDL_GetError() << endl;
 		return 1;
 	}
+
+	cout << "Vendor: " << (char*)glGetString(GL_VENDOR) << endl
+		 << "Renderer: " << (char*)glGetString(GL_RENDERER) << endl
+		 << "Version: " << (char*)glGetString(GL_VERSION) << endl
+		 << "Shading Language Version: " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 
 	// start GLEW
 	glewExperimental = GL_TRUE;
