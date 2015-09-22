@@ -21,6 +21,6 @@ void main()
 	float mat_gloss = 10.0; // glossiness of material
 
 
-	vec3 color = (light_spec * mat_spec) * pow(max(dot(Normal, halfway), 0), mat_gloss) + (light_diff * mat_diff) * max(dot(Normal, Light), 0) + global_amb * mat_amb;
+	vec3 color = (light_spec * mat_spec) * pow(max(dot(Normal, halfway), 0), mat_gloss) + (light_diff * mat_diff) * max((dot(Normal, Light) + 0.5) / 1.5, 0) + global_amb * mat_amb;
 	outColor = vec4(color, 1.0);
 }
